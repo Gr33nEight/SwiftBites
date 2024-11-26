@@ -10,10 +10,10 @@ import SwiftData
 
 @Model
 final class Category: Identifiable, Hashable {
-    @Attribute(.unique) let id: UUID
+    let id: UUID
     @Attribute(.unique) var name: String
     
-    @Relationship(deleteRule: .cascade, inverse: \Recipe.category)
+    @Relationship(deleteRule: .nullify, inverse: \Recipe.category)
     var recipes: [Recipe]
     
     init(id: UUID = UUID(), name: String = "", recipes: [Recipe] = []) {
@@ -40,7 +40,7 @@ final class RecipeIngredient: Identifiable, Hashable {
     var ingredient: Ingredient
     var quantity: String
     
-    @Relationship var recipe: Recipe?
+    var recipe: Recipe?
 
     init(id: UUID = UUID(), ingredient: Ingredient = Ingredient(), quantity: String = "", recipe: Recipe? = nil) {
         self.id = id
@@ -57,7 +57,7 @@ final class Recipe: Identifiable, Hashable {
     var summary: String
     
     
-    @Relationship var category: Category?
+    @Relationship(deleteRule: .nullify) var category: Category?
     
     var serving: Int
     var time: Int
