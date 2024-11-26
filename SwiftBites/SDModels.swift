@@ -10,9 +10,10 @@ import SwiftData
 
 @Model
 final class Category: Identifiable, Hashable {
-    let id: UUID
-    var name: String
-    @Relationship(inverse: \Recipe.category)
+    @Attribute(.unique) let id: UUID
+    @Attribute(.unique) var name: String
+    
+    @Relationship(deleteRule: .cascade, inverse: \Recipe.category)
     var recipes: [Recipe]
     
     init(id: UUID = UUID(), name: String = "", recipes: [Recipe] = []) {
@@ -24,8 +25,8 @@ final class Category: Identifiable, Hashable {
 
 @Model
 final class Ingredient: Identifiable, Hashable {
-    let id: UUID
-    var name: String
+    @Attribute(.unique) let id: UUID
+    @Attribute(.unique) var name: String
     
     init(id: UUID = UUID(), name: String = "") {
         self.id = id
@@ -35,12 +36,11 @@ final class Ingredient: Identifiable, Hashable {
 
 @Model
 final class RecipeIngredient: Identifiable, Hashable {
-    let id: UUID
+    @Attribute(.unique) let id: UUID
     var ingredient: Ingredient
     var quantity: String
     
-    @Relationship(inverse: \Recipe.ingredients) // Inverse relationship to Recipe
-    var recipe: Recipe? // This is a reference back to the Recipe
+    @Relationship var recipe: Recipe?
 
     init(id: UUID = UUID(), ingredient: Ingredient = Ingredient(), quantity: String = "", recipe: Recipe? = nil) {
         self.id = id
@@ -52,8 +52,8 @@ final class RecipeIngredient: Identifiable, Hashable {
 
 @Model
 final class Recipe: Identifiable, Hashable {
-    let id: UUID = UUID()
-    var name: String
+    @Attribute(.unique) let id: UUID = UUID()
+    @Attribute(.unique) var name: String
     var summary: String
     
     
@@ -61,7 +61,10 @@ final class Recipe: Identifiable, Hashable {
     
     var serving: Int
     var time: Int
-    var ingredients: [RecipeIngredient] // List of ingredients
+    
+    @Relationship(deleteRule: .cascade, inverse: \RecipeIngredient.recipe)
+    var ingredients: [RecipeIngredient]
+    
     var instructions: String
     var imageData: Data?
     

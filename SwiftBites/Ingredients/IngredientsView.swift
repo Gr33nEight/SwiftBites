@@ -6,18 +6,14 @@ struct IngredientsView: View {
     
     let selection: Selection?
     
+    init(selection: Selection? = nil) {
+        self.selection = selection
+    }
+    
     @Query var ingredients: [Ingredient]
     @Environment(\.modelContext) private var context
     @Environment(\.dismiss) private var dismiss
     @State private var query = ""
-    
-    init(selection: Selection? = nil) {
-        self.selection = selection
-        self._ingredients = Query(filter: #Predicate<Ingredient>{
-            ($0.name.localizedStandardContains(query) ||
-             query.isEmpty)
-        })
-    }
     
     // MARK: - Body
     
@@ -38,6 +34,22 @@ struct IngredientsView: View {
         }
     }
     
+    private var filteredIngredients: [Ingredient] {
+        let predicate = #Predicate<Ingredient> {
+            $0.name.localizedStandardContains(query)
+        }
+        let descriptor = FetchDescriptor<Ingredient>(
+            predicate: query.isEmpty ? nil : predicate
+        )
+        
+        do {
+            let filteredIngredients = try context.fetch(descriptor)
+            return filteredIngredients
+        } catch {
+            return []
+        }
+    }
+    
     // MARK: - Views
     
     @ViewBuilder
@@ -45,13 +57,7 @@ struct IngredientsView: View {
         if ingredients.isEmpty {
             empty
         } else {
-            list(for: ingredients.filter {
-                if query.isEmpty {
-                    return true
-                } else {
-                    return $0.name.localizedStandardContains(query)
-                }
-            })
+            list(for: filteredIngredients)
         }
     }
     
