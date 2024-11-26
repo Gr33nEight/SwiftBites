@@ -1,14 +1,16 @@
 import SwiftUI
 
 struct RecipeCell: View {
-  let recipe: MockRecipe
+  let recipe: Recipe
 
   // MARK: - Body
 
   var body: some View {
-    NavigationLink(value: RecipeForm.Mode.edit(recipe)) {
-      content
-    }
+      NavigationLink {
+          RecipeForm(recipe: recipe)
+      } label: {
+          content
+      }
     .buttonStyle(.plain)
   }
 
